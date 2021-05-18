@@ -35,17 +35,12 @@ public class FileFrame extends JInternalFrame{
         this.toFront();
     }
     
-    void updateDir(DefaultMutableTreeNode n, String r){
-        this.setTitle(r);
-        dir.buildTree(n, r);
-    }
-    
     void updateFile(String r){
         this.setTitle(r);
         file.buildTree(r);
     }
     
-    void updateFile(String r, String status){
+    void updateStatus(String r, String status){
         this.setTitle(r);
         parent.updateStatusBar(status);
         file.buildTree(r);

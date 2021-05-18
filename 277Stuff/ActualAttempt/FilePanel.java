@@ -69,6 +69,9 @@ public class FilePanel extends JPanel{
         }
     }
     
+    
+    
+   
     void buildTree(String r){
         File file = new File(r);
         directory = file;
@@ -78,9 +81,15 @@ public class FilePanel extends JPanel{
         File[] files = file.listFiles();
         if (files != null){
             for(File f : files){
-                if (f.isFile()){
+                if (!f.isHidden()){
                     DefaultMutableTreeNode subnode = new DefaultMutableTreeNode(f.getName());
                     root.add(subnode);
+                    File[] files2 = f.listFiles();
+                    if (files2 != null){
+                        for(File g: files2){
+                            subnode.add(new DefaultMutableTreeNode(g.getName()));
+                        }
+                    }
                 }
             }
         }
@@ -107,13 +116,18 @@ public class FilePanel extends JPanel{
                 else
                     r += "\\" + s;
             } 
-            if (r.equals(directory)) return;
-            Desktop desktop = Desktop.getDesktop();
-            try{
-                 desktop.open(new File(r));
+            File f = new File(r);
+            if (f.isDirectory()){
+                parent.updateFile(r);
+            }
+            else{
+                Desktop desktop = Desktop.getDesktop();
+                try{
+                    desktop.open(f);
                 }
-            catch (IOException ex){
-                System.out.println(ex.toString());
+                catch (IOException ex){
+                    System.out.println(ex.toString());
+                }
             }
         }
     }

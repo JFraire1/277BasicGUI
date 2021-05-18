@@ -18,6 +18,7 @@ import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
@@ -52,6 +53,8 @@ public class DirPanel extends JPanel{
         buildTree(root, drive);
         parent.updateFile(drive);
         dirTree.setModel(treemodel);
+        DefaultTreeCellRenderer renderer = (DefaultTreeCellRenderer) dirTree.getCellRenderer();
+        renderer.setLeafIcon(renderer.getClosedIcon());
         add(scPane, BorderLayout.CENTER);
         
     }
@@ -72,7 +75,7 @@ public class DirPanel extends JPanel{
         File[] files = file.listFiles();
         if (files != null){
             for(File f : files){
-                if (!f.isHidden()){
+                if (!f.isHidden() && f.isDirectory()){
                     DefaultMutableTreeNode subnode = new DefaultMutableTreeNode(f.getName());
                     root.add(subnode);
                     File[] files2 = f.listFiles();
@@ -113,7 +116,7 @@ public class DirPanel extends JPanel{
             status += " GB | ";
             status += "Total Available Space: " + h.getUsableSpace()/1000000000 + "GB | ";
             status += "Last Modified: " + dateformatter.format(h.lastModified());
-            parent.updateFile(r, status);
+            parent.updateStatus(r, status);
             if (h.isDirectory()){
                 buildTree(selectedNode, r);
                 dirTree.expandPath(new TreePath(path));
