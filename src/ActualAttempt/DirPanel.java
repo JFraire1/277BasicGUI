@@ -31,7 +31,6 @@ public class DirPanel extends JPanel{
     private DefaultMutableTreeNode root;
     private JScrollPane scPane;
     private JTree dirTree;
-    private File file;
     String drive;
     private DefaultTreeModel treemodel;
     private FileFrame parent;
@@ -47,7 +46,6 @@ public class DirPanel extends JPanel{
         dirTree.addTreeSelectionListener(new myTreeSelectionListener());
         File[] files = File.listRoots();
         drive = files[0].toString();
-        System.out.println(drive);
         root = new DefaultMutableTreeNode(drive);
         treemodel = new DefaultTreeModel(root);
         buildTree(root, drive);
@@ -121,16 +119,8 @@ public class DirPanel extends JPanel{
                 buildTree(selectedNode, r);
                 dirTree.expandPath(new TreePath(path));
             }
-            else{
-                Desktop desktop = Desktop.getDesktop();
-                try{
-                    desktop.open(h);
-                }
-                catch (IOException ex){
-                    System.out.println(ex.toString());
-                }
-            }
         }
     }
 }
+
 
