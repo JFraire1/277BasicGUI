@@ -42,36 +42,7 @@ public class FilePanel extends JPanel{
         scPane.setViewportView(dirTree);
         add(scPane);
     }
-    
-    void buildTree(DefaultMutableTreeNode p, String r){
-        
-        if (p.getChildCount() != 0){
-            for (Enumeration<TreeNode> j = p.children(); j.hasMoreElements();){
-                TreeNode k = j.nextElement();
-                if (k.getChildCount() != 0) return;
-            }
-            p.removeAllChildren();
-        }
-        File file = new File(r);
-        DefaultMutableTreeNode root = p;
-        File[] files = file.listFiles();
-        if (files != null){
-            for(File f : files){
-                DefaultMutableTreeNode subnode = new DefaultMutableTreeNode(f.getName());
-                root.add(subnode);
-                File[] files2 = f.listFiles();
-                if (files2 != null){
-                    for(File g: files2){
-                        subnode.add(new DefaultMutableTreeNode(g.getName()));
-                    }
-                }
-            }
-        }
-    }
-    
-    
-    
-   
+
     void buildTree(String r){
         File file = new File(r);
         directory = file;

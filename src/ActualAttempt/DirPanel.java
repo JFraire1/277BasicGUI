@@ -104,6 +104,8 @@ public class DirPanel extends JPanel{
                 String s = insideNode.toString();
                 if (s.equals(drive))
                     r = s;
+                else if (r.equals(drive))
+                    r += s;
                 else
                     r += "\\" + s;
             }
