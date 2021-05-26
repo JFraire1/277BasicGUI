@@ -5,13 +5,15 @@
  */
 package ActualAttempt;
 
-import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.BorderLayout;
+import java.awt.Desktop;
+import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
-import javax.swing.*;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -29,8 +31,6 @@ public class FilePanel extends JPanel{
     private DefaultTreeModel treemodel;
     private FileFrame parent;
     private File directory;
-    private DefaultMutableTreeNode selectedNode;
-    private boolean openClick = true;
     
     public FilePanel(FileFrame f){
         parent = f;
@@ -38,7 +38,6 @@ public class FilePanel extends JPanel{
         this.setLayout(new BorderLayout());
         this.add(scPane, BorderLayout.CENTER);
         dirTree.addTreeSelectionListener(new myTreeSelectionListener());
-        dirTree.addMouseListener(new FileMouseAdapter());
         scPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scPane.setViewportView(dirTree);
         add(scPane);
@@ -68,43 +67,7 @@ public class FilePanel extends JPanel{
         TreePath path = new TreePath(root.getPath());
         dirTree.expandPath(path);
     }
-
-    private class PopUpMenu extends JPopupMenu{
-        JMenuItem delete, copy, rename, paste;
-        public PopUpMenu(){
-            delete = new JMenuItem("Delete");
-            copy = new JMenuItem("Copy");
-            rename = new JMenuItem("Rename");
-            paste = new JMenuItem("Paste");
-
-            add(delete);
-            add(copy);
-            add(rename);
-            add(paste);
-
-        }
-    }
-
-    private class FileMouseAdapter extends MouseAdapter{
-        @Override
-        public void mouseClicked(MouseEvent e) {
-            if (e.getButton() == MouseEvent.BUTTON1){
-                openClick = false;
-                openPopUp(e);
-            }
-            else if (e.getClickCount() == 1) {
-                openClick = false;
-            }
-            else if (e.getClickCount() == 2) {
-                openClick = true;
-            }
-        }
-        private void openPopUp(MouseEvent e){
-            PopupMenu menu = new PopupMenu();
-            menu.show(e.getComponent(), e.getX(), e.getY());
-        }
-    }
-
+    
     private class myTreeSelectionListener implements TreeSelectionListener{
 
         @Override
@@ -114,8 +77,8 @@ public class FilePanel extends JPanel{
                 selectedPath = dirTree.getSelectionPath();
             else
                 return;
-            selectedNode = (DefaultMutableTreeNode)selectedPath.getLastPathComponent();
-            TreeNode[] path = selectedNode.getPath();
+            DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)selectedPath.getLastPathComponent();
+            TreeNode[] path = selectedNode.getPath();    
             String r = "";
             for (TreeNode insideNode : path){
                 String s = insideNode.toString();
@@ -123,12 +86,12 @@ public class FilePanel extends JPanel{
                     r = directory.getAbsolutePath();
                 else
                     r += "\\" + s;
-            }
+            } 
             File f = new File(r);
-            if (f.isDirectory() & openClick){
+            if (f.isDirectory()){
                 parent.updateFile(r);
             }
-            else if (openClick){
+            else{
                 Desktop desktop = Desktop.getDesktop();
                 try{
                     desktop.open(f);

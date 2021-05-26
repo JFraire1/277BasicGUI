@@ -6,7 +6,8 @@
 package ActualAttempt;
 
 import java.awt.Rectangle;
-import javax.swing.*;
+import javax.swing.JInternalFrame;
+import javax.swing.JSplitPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
