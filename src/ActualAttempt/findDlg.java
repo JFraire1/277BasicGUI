@@ -5,6 +5,7 @@
  */
 package ActualAttempt;
 
+import java.awt.*;
 import java.io.File;
 
 /**
@@ -12,14 +13,14 @@ import java.io.File;
  * @author Jose Fraire Jr
  */
 public class findDlg extends javax.swing.JDialog {
-    private App parent;
+    private App app;
     /**
      * Creates new form findDlg
      */
     
-    public findDlg(java.awt.Frame parent, boolean modal, App app) {
+    public findDlg(Frame parent, boolean modal, App app) {
         super(parent, modal);
-        this.parent = app;
+        this.app = app;
         initComponents();
     }
     
@@ -49,7 +50,7 @@ public class findDlg extends javax.swing.JDialog {
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("Find");
 
-        textField1.setText("Enter Folder or File Directory");
+        textField1.setText(app.drive);
         textField1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 textField1ActionPerformed(evt);
@@ -121,8 +122,8 @@ public class findDlg extends javax.swing.JDialog {
             this.dispose();
         }
         else{
-            parent.newDir = s;
-            parent.find();
+            app.newDir = s;
+            app.find();
             this.dispose();
         }
     }//GEN-LAST:event_jButton1ActionPerformed

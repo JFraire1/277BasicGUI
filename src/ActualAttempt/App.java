@@ -5,21 +5,12 @@
  */
 package ActualAttempt;
 
-import java.awt.BorderLayout;
-import java.awt.Desktop;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import javax.swing.JButton;
-import javax.swing.JDesktopPane;
-import javax.swing.JFrame;
-import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 /**
  *
@@ -28,11 +19,12 @@ import javax.swing.JPanel;
 public class App extends JFrame{
     JLabel size;
     JPanel panel;
-    static JDesktopPane dPane;
+    JDesktopPane dPane;
     JMenuBar menubar, statusBar;
     App app = this;
     String newDir;
-    
+    String drive;
+
     void newFF(){
         FileFrame FF = new FileFrame(this);
         dPane.add(FF);
@@ -45,15 +37,17 @@ public class App extends JFrame{
         panel.setLayout(new BorderLayout());
         dPane = new JDesktopPane();
         statusBar = new JMenuBar();
+
         
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle("File Manager");
-        setSize(700, 400);
+        setBounds(280,180,960, 500);
     }
     
     public void find(){
         File f = new File(newDir);
         FileFrame ff = new FileFrame(app);
+        ff.setTitle("Go To: " + newDir);
         ff.updateFile(newDir);
         dPane.add(ff);
         if (f.isFile()){
@@ -83,7 +77,7 @@ public class App extends JFrame{
         JMenu helpMenu = new JMenu("Help");
         JMenuItem about = new JMenuItem("About");
         JButton addNew = new JButton("+");
-        JButton find = new JButton("Find");
+        JButton find = new JButton("Go To");
         
         addNew.addActionListener(new addWindowActionListener());
         about.addActionListener(new AboutActionListener());
@@ -101,11 +95,15 @@ public class App extends JFrame{
     }
     
     private void buildStatusBar(){
+        JButton closeAll = new JButton("Close All");
         JButton setCascading = new JButton("Cascade");
         size = new JLabel("");
-        
+
+        closeAll.addActionListener(new closeAllActionListener());
         setCascading.addActionListener(new cascadingActionListener());
-        
+
+        statusBar.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        statusBar.add(closeAll);
         statusBar.add(setCascading);
         statusBar.add(size);
         panel.add(statusBar, BorderLayout.SOUTH);
@@ -116,11 +114,10 @@ public class App extends JFrame{
         @Override
         public void actionPerformed(ActionEvent e) {
             JInternalFrame[] j = dPane.getAllFrames();
-            int[] root = {(j.length - 1)*25,(j.length - 1)*25};
+            int root = (j.length - 1)*25;
             for (JInternalFrame jf : j){
-                jf.setLocation(root[0], root[1]);
-                root[0] -= 25;
-                root[1] -= 25;
+                jf.setLocation(root, root);
+                root -= 25;
             }
         }
 
@@ -158,5 +155,13 @@ public class App extends JFrame{
         }
     
     }
-    
+
+    private class closeAllActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            for(JInternalFrame jf : dPane.getAllFrames()){
+                jf.dispose();
+            }
+        }
+    }
 }
