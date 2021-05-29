@@ -5,9 +5,10 @@
  */
 package ActualAttempt;
 
-import java.awt.Rectangle;
-import javax.swing.JInternalFrame;
-import javax.swing.JSplitPane;
+import jdk.jshell.execution.Util;
+
+import java.awt.*;
+import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
@@ -16,33 +17,50 @@ import javax.swing.tree.DefaultMutableTreeNode;
  */
 public class FileFrame extends JInternalFrame{
     JSplitPane splitpane;
+    DirectoryMenu DirMenu = new DirectoryMenu(this);
     FilePanel file = new FilePanel(this);
     DirPanel dir = new DirPanel(this);
-    Rectangle r = new Rectangle(450, 400);
     App parent;
     
     public FileFrame(App app){
         parent = app;
+        JInternalFrame[] jf = parent.dPane.getAllFrames();
+        setLocation(jf.length * 25, jf.length * 25);
+        for (JInternalFrame frame : jf){
+            frame.moveToBack();
+        }
+        setLayer(jf.length);
+        getContentPane().setLayout(new BorderLayout());
         splitpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, dir, file);
-        getContentPane().add(splitpane);
+        getContentPane().add(DirMenu, BorderLayout.NORTH);
+        DirMenu.setLocation(0,0);
+        DirMenu.setAlignmentX(LEFT_ALIGNMENT);
+        DirMenu.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        DirMenu.updateDirectoryMenu(dir.drive);
+        getContentPane().add(splitpane, BorderLayout.CENTER);
+        splitpane.setAlignmentX(CENTER_ALIGNMENT);
+        splitpane.setDividerLocation(200);
+        splitpane.setDividerSize(0);
         this.setClosable(true);
-        this.setTitle("C:\\");
+        this.setTitle("New File Window");
+        parent.drive = dir.drive;
         
         this.setMaximizable(true);
         this.setIconifiable(true);
-        this.setSize(r.height, r.width);
+        this.setSize(950, 410);
         this.setVisible(true);
         this.toFront();
     }
     
     void updateFile(String r){
-        this.setTitle(r);
+        DirMenu.updateDirectoryMenu(r);
         file.buildTree(r);
     }
     
     void updateStatus(String r, String status){
-        this.setTitle(r);
         parent.updateStatusBar(status);
+        DirMenu.updateDirectoryMenu(r);
         file.buildTree(r);
     }
+
 }
