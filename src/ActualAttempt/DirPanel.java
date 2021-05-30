@@ -110,18 +110,22 @@ public class DirPanel extends JPanel{
                 else
                     r += "\\" + s;
             }
-            SimpleDateFormat dateformatter = new SimpleDateFormat("MM/dd/yyyy");
-            String status = "Size: ";
             File h = new File(r);
-            status += (h.getTotalSpace()/1000000000);
-            status += " GB | ";
-            status += "Total Available Space: " + h.getUsableSpace()/1000000000 + "GB | ";
-            status += "Last Modified: " + dateformatter.format(h.lastModified());
-            parent.updateStatus(r, status);
+            updateStatus(h, r);
             if (h.isDirectory()){
                 buildTree(selectedNode, r);
             }
         }
+    }
+
+    public void updateStatus(File file, String r){
+        SimpleDateFormat dateformatter = new SimpleDateFormat("MM/dd/yyyy");
+        String status = "Size: ";
+        status += (file.getTotalSpace()/1000000000);
+        status += " GB | ";
+        status += "Total Available Space: " + file.getUsableSpace()/1000000000 + "GB | ";
+        status += "Last Modified: " + dateformatter.format(file.lastModified());
+        parent.updateStatus(r, status);
     }
 
     private class TreeMouseAdapter extends MouseAdapter {
