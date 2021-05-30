@@ -39,6 +39,13 @@ public class FilePanel extends JPanel{
         scPane.setPreferredSize(new Dimension(200,200));
         setLayout(new BorderLayout());
         add(scPane, BorderLayout.CENTER);
+        dirTree.setUI(new BasicTreeUI() {
+                          @Override
+                          protected boolean shouldPaintExpandControl(final TreePath path, final int row
+                                  , final boolean isExpanded, final boolean hasBeenExpanded, final boolean isLeaf) {
+                              return false;
+                          }
+                      });
         dirTree.addTreeWillExpandListener(new MyTreeWillExpandListener());
         dirTree.addMouseListener(new TreeMouseAdapter());
         scPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -121,7 +128,6 @@ public class FilePanel extends JPanel{
 
         @Override
         public void treeWillCollapse(TreeExpansionEvent event) throws ExpandVetoException {
-
         }
     }
 }
