@@ -18,12 +18,9 @@ import java.util.Enumeration;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeNode;
-import javax.swing.tree.TreePath;
+import javax.swing.event.*;
+import javax.swing.plaf.basic.BasicTreeUI;
+import javax.swing.tree.*;
 
 /**
  *
@@ -35,12 +32,14 @@ public class FilePanel extends JPanel{
     private FileFrame parent;
     private File directory;
     private final FilePanel fp = this;
+    private DefaultMutableTreeNode root;
     
     public FilePanel(FileFrame f){
         parent = f;
         scPane.setPreferredSize(new Dimension(200,200));
         setLayout(new BorderLayout());
         add(scPane, BorderLayout.CENTER);
+        dirTree.addTreeWillExpandListener(new MyTreeWillExpandListener());
         dirTree.addMouseListener(new TreeMouseAdapter());
         scPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scPane.setViewportView(dirTree);
@@ -50,7 +49,7 @@ public class FilePanel extends JPanel{
     void buildTree(String r){
         File file = new File(r);
         directory = file;
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode(file.getName());
+        root = new DefaultMutableTreeNode(file.getName());
         DefaultTreeModel treemodel = new DefaultTreeModel(root);
         dirTree.setModel(treemodel);
         File[] files = file.listFiles();
@@ -109,6 +108,20 @@ public class FilePanel extends JPanel{
                 menu.show(e.getComponent(), e.getX(), e.getY());
 
             }
+        }
+    }
+
+    private class MyTreeWillExpandListener implements TreeWillExpandListener {
+
+        @Override
+        public void treeWillExpand(TreeExpansionEvent event) throws ExpandVetoException {
+            if (event.getPath().getLastPathComponent() == root){return;}
+            throw new ExpandVetoException(event,null);
+        }
+
+        @Override
+        public void treeWillCollapse(TreeExpansionEvent event) throws ExpandVetoException {
+
         }
     }
 }
