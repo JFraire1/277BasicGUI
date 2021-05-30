@@ -40,13 +40,17 @@ public class MyJPopupMenu extends JPopupMenu {
             switch(e.getActionCommand())
             {
                 case "Copy":
-                    System.out.println("Copy");
+                    //to DO
+                    System.out.println("Not implemented yet");
                     System.out.println(dir);
                 case "Delete":
+                    //to Do
                     ;
                 case "Paste":
+                    //to Do
                     ;
                 case "Rename":
+                    //to Do
                     ;
             }
         }
