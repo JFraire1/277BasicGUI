@@ -43,6 +43,7 @@ public class DirPanel extends JPanel {
         scPane.setViewportView(dirTree);
         scPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         dirTree.addMouseListener(new TreeMouseAdapter());
+        dirTree.addTreeWillExpandListener(new MyTreeWillExpandListener());
         dirTree.setUI(new BasicTreeUI() {
             @Override
             protected boolean shouldPaintExpandControl(final TreePath path, final int row
@@ -90,6 +91,7 @@ public class DirPanel extends JPanel {
                 }
             }
         }
+        treemodel.reload(root);
     }
 
 
@@ -132,6 +134,20 @@ public class DirPanel extends JPanel {
                 MyJPopupMenu menu = new MyJPopupMenu(selectedNode, r, dp, dirTree);
                 menu.show(e.getComponent(), e.getX(), e.getY());
 
+            }
+        }
+    }
+
+    private class MyTreeWillExpandListener implements TreeWillExpandListener{
+
+        @Override
+        public void treeWillExpand(TreeExpansionEvent event) throws ExpandVetoException {}
+
+        @Override
+        public void treeWillCollapse(TreeExpansionEvent event) throws ExpandVetoException {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode)event.getPath().getLastPathComponent();
+            for (Enumeration<TreeNode> j = node.children(); j.hasMoreElements(); ) {
+                ((DefaultMutableTreeNode) j.nextElement()).removeAllChildren();
             }
         }
     }
