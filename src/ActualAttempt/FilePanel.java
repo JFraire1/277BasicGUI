@@ -5,9 +5,13 @@
  */
 package ActualAttempt;
 
+import com.sun.source.tree.Tree;
+
 import java.awt.BorderLayout;
 import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
@@ -28,16 +32,16 @@ import javax.swing.tree.TreePath;
 public class FilePanel extends JPanel{
     private JScrollPane scPane = new JScrollPane();
     private JTree dirTree = new JTree();
-    private DefaultTreeModel treemodel;
     private FileFrame parent;
     private File directory;
+    private final FilePanel fp = this;
     
     public FilePanel(FileFrame f){
         parent = f;
         scPane.setPreferredSize(new Dimension(200,200));
-        this.setLayout(new BorderLayout());
-        this.add(scPane, BorderLayout.CENTER);
-        dirTree.addTreeSelectionListener(new myTreeSelectionListener());
+        setLayout(new BorderLayout());
+        add(scPane, BorderLayout.CENTER);
+        dirTree.addMouseListener(new TreeMouseAdapter());
         scPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scPane.setViewportView(dirTree);
         add(scPane);
@@ -47,7 +51,7 @@ public class FilePanel extends JPanel{
         File file = new File(r);
         directory = file;
         DefaultMutableTreeNode root = new DefaultMutableTreeNode(file.getName());
-        treemodel = new DefaultTreeModel(root);
+        DefaultTreeModel treemodel = new DefaultTreeModel(root);
         dirTree.setModel(treemodel);
         File[] files = file.listFiles();
         if (files != null){
@@ -67,40 +71,46 @@ public class FilePanel extends JPanel{
         TreePath path = new TreePath(root.getPath());
         dirTree.expandPath(path);
     }
-    
-    private class myTreeSelectionListener implements TreeSelectionListener{
 
+    private class TreeMouseAdapter extends MouseAdapter {
         @Override
-        public void valueChanged(TreeSelectionEvent e) {
-            TreePath selectedPath;
-            if (dirTree.getSelectionPath() != null)
-                selectedPath = dirTree.getSelectionPath();
-            else
+        public void mouseClicked(MouseEvent e) {
+            TreePath treePath = dirTree.getSelectionPath();
+            if (treePath == null) {
                 return;
-            DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)selectedPath.getLastPathComponent();
-            TreeNode[] path = selectedNode.getPath();    
+            }
+            DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) treePath.getLastPathComponent();
+            TreeNode[] path = selectedNode.getPath();
             String r = "";
-            for (TreeNode insideNode : path){
+            for (TreeNode insideNode : path) {
                 String s = insideNode.toString();
                 if (s.equals(directory.getName()))
                     r = directory.getAbsolutePath();
                 else
                     r += "\\" + s;
-            } 
-            File f = new File(r);
-            if (f.isDirectory()){
-                parent.updateFile(r);
             }
-            else{
-                Desktop desktop = Desktop.getDesktop();
-                try{
-                    desktop.open(f);
+            if (e.getButton() == 1) {
+                if (e.getClickCount() == 2) {
+                    File f = new File(r);
+                    if (f.isDirectory()) {
+                        parent.updateFile(r);
+                    } else {
+                        Desktop desktop = Desktop.getDesktop();
+                        try {
+                            desktop.open(f);
+                        } catch (IOException ex) {
+                            System.out.println(ex.toString());
+                        }
+                    }
                 }
-                catch (IOException ex){
-                    System.out.println(ex.toString());
-                }
+            }
+            if (e.getButton() == 2 | e.getButton() == 3) {
+                MyJPopupMenu menu = new MyJPopupMenu(selectedNode, r, fp, dirTree);
+                menu.show(e.getComponent(), e.getX(), e.getY());
+
             }
         }
     }
 }
+
 

@@ -5,16 +5,15 @@
  */
 package ActualAttempt;
 
-import java.awt.BorderLayout;
-import java.awt.Desktop;
-import java.awt.Dimension;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Enumeration;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTree;
+import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -34,6 +33,7 @@ public class DirPanel extends JPanel{
     String drive;
     private DefaultTreeModel treemodel;
     private FileFrame parent;
+    private DirPanel dp = this;
     
     public DirPanel(FileFrame f){
         parent = f;
@@ -44,6 +44,7 @@ public class DirPanel extends JPanel{
         scPane.setViewportView(dirTree);
         scPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         dirTree.addTreeSelectionListener(new myTreeSelectionListener());
+        dirTree.addMouseListener(new TreeMouseAdapter());
         File[] files = File.listRoots();
         drive = files[0].toString();
         root = new DefaultMutableTreeNode(drive);
@@ -98,7 +99,7 @@ public class DirPanel extends JPanel{
             else
                 return;
             DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)selectedPath.getLastPathComponent();
-            TreeNode[] path = selectedNode.getPath();    
+            TreeNode[] path = selectedNode.getPath();
             String r = "";
             for (TreeNode insideNode : path){
                 String s = insideNode.toString();
@@ -119,7 +120,33 @@ public class DirPanel extends JPanel{
             parent.updateStatus(r, status);
             if (h.isDirectory()){
                 buildTree(selectedNode, r);
-                dirTree.expandPath(new TreePath(path));
+            }
+        }
+    }
+
+    private class TreeMouseAdapter extends MouseAdapter {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            TreePath treePath = dirTree.getSelectionPath();
+            if (treePath == null) {
+                return;
+            }
+            DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)treePath.getLastPathComponent();
+            TreeNode[] path = selectedNode.getPath();
+            String r = "";
+            for (TreeNode insideNode : path){
+                String s = insideNode.toString();
+                if (s.equals(drive))
+                    r = s;
+                else if (r.equals(drive))
+                    r += s;
+                else
+                    r += "\\" + s;
+            }
+            if (e.getButton() == 2 | e.getButton() == 3) {
+                MyJPopupMenu menu = new MyJPopupMenu(selectedNode, r, dp, dirTree);
+                menu.show(e.getComponent(), e.getX(), e.getY());
+
             }
         }
     }
