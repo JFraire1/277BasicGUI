@@ -2,15 +2,13 @@ package ActualAttempt;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.nio.channels.spi.AbstractInterruptibleChannel;
 import java.nio.file.*;
-
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import static java.nio.file.StandardWatchEventKinds.*;
 
 public class MyJPopupMenu extends JPopupMenu {
     private final JTree tree;
@@ -30,7 +28,7 @@ public class MyJPopupMenu extends JPopupMenu {
         JMenuItem paste = new JMenuItem("Paste");
         JMenuItem rename = new JMenuItem("Rename");
         copy.addActionListener(new CopyActionListener());
-        //delete.addActionListener(new ActionListener());
+        delete.addActionListener(new DeleteActionListener());
         paste.addActionListener(new PasteActionListener());
         //rename.addActionListener(new MyMenuActionListener());
         add(copy);
@@ -69,8 +67,6 @@ public class MyJPopupMenu extends JPopupMenu {
             else{
                 dir += "\\" + sourceFile.getName();
             }
-            String identifier;
-            String identifierSource[];
             if (sourceFile.isDirectory()){
                 dir = duplicateDirectoryLoop(dir, 1);
                 try {
@@ -96,6 +92,13 @@ public class MyJPopupMenu extends JPopupMenu {
                 ((FilePanel)parentPanel).updateTree();
                 ((FilePanel)parentPanel).getParentFrame().dir.updateTree();
             }
+        }
+    }
+
+    private class DeleteActionListener implements ActionListener{
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            
         }
     }
 

@@ -5,7 +5,6 @@
  */
 package ActualAttempt;
 
-import com.sun.source.tree.Tree;
 
 import java.awt.BorderLayout;
 import java.awt.Desktop;
@@ -14,13 +13,14 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
-import java.util.Enumeration;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
-import javax.swing.event.*;
+import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeWillExpandListener;
 import javax.swing.plaf.basic.BasicTreeUI;
 import javax.swing.tree.*;
+
 
 /**
  *
@@ -98,16 +98,25 @@ public class FilePanel extends JPanel{
             String r = "";
             for (TreeNode insideNode : path) {
                 String s = insideNode.toString();
-                if (s.equals(directory.getName()))
+                if (s.equals(directory.getName())){
                     r = directory.getAbsolutePath();
-                else
-                    r += "\\" + s;
+                }
+                else {
+                    if (r.endsWith("\\")) {
+                        r += s;
+                    }
+                    else{
+                        r += "\\" + s;
+                    }
+                }
             }
             if (e.getButton() == 1) {
                 if (e.getClickCount() == 2) {
                     File f = new File(r);
                     if (f.isDirectory()) {
                         parent.updateFile(r);
+                        parent.dir.updateSelection(r.split("\\\\"), 0);
+                        parent.dir.updateTree();
                     } else {
                         Desktop desktop = Desktop.getDesktop();
                         try {

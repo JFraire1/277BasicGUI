@@ -5,17 +5,15 @@
  */
 package ActualAttempt;
 
-import jdk.jshell.execution.Util;
 
-import java.awt.*;
 import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
+import java.awt.*;
 
 /**
  *
  * @author Jose Fraire Jr
  */
-public class FileFrame extends JInternalFrame{
+public class FileFrame extends JInternalFrame {
     JSplitPane splitpane;
     DirectoryMenu DirMenu = new DirectoryMenu(this);
     FilePanel file = new FilePanel(this);

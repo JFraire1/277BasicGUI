@@ -8,19 +8,14 @@ package ActualAttempt;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Enumeration;
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeWillExpandListener;
 import javax.swing.plaf.basic.BasicTreeUI;
-import javax.swing.text.Position;
 import javax.swing.tree.*;
 
 /**
@@ -84,6 +79,11 @@ public class DirPanel extends JPanel {
         return insideNode;
     }
 
+    void updateSelection(String[] names, int check){
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode)findNode(names, root);
+        dirTree.setSelectionPath(new TreePath(node.getPath()));
+    }
+
     void updateSelection(String[] names){
         DefaultMutableTreeNode node = (DefaultMutableTreeNode)findNode(names, root).getParent();
         dirTree.setSelectionPath(new TreePath(node.getPath()));
@@ -119,15 +119,21 @@ public class DirPanel extends JPanel {
     }
 
     void updateTree(){
-        if (dirTree.getSelectionPath() == null) {
+        TreePath path = dirTree.getSelectionPath();
+        if (path == null) {
             buildTree(root, drive);
             treemodel.reload();
             return;
         }
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode) dirTree.getSelectionPath().getLastPathComponent();
-        dirTree.collapsePath(dirTree.getSelectionPath());
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+        if(dirTree.isCollapsed(path)){
+            buildTree(node, getR(node));
+            dirTree.expandPath(path);
+            dirTree.collapsePath(path);
+        }
+        dirTree.collapsePath(path);
         buildTree(node, getR(node));
-        dirTree.expandPath(dirTree.getSelectionPath());
+        dirTree.expandPath(path);
     }
 
     private String getR(DefaultMutableTreeNode node) {

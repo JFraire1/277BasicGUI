@@ -12,6 +12,8 @@ public class DirectoryLabel extends JLabel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 parent.updateFile(dir);
+                parent.dir.updateSelection(dir.split("\\\\"), 0);
+                parent.dir.updateTree();
             }
         });
     }

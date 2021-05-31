@@ -50,6 +50,8 @@ public class App extends JFrame{
         ff.setTitle("Go To: " + newDir);
         ff.updateFile(newDir);
         dPane.add(ff);
+        ff.dir.updateSelection(newDir.split("\\\\"), 0);
+        ff.dir.updateTree();
         if (f.isFile()){
             Desktop desktop = Desktop.getDesktop();
             try{
