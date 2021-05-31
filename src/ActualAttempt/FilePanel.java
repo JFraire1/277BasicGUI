@@ -78,6 +78,14 @@ public class FilePanel extends JPanel{
         dirTree.expandPath(path);
     }
 
+    FileFrame getParentFrame(){
+        return parent;
+    }
+
+    void updateTree(){
+        buildTree(directory.getAbsolutePath());
+    }
+
     private class TreeMouseAdapter extends MouseAdapter {
         @Override
         public void mouseClicked(MouseEvent e) {

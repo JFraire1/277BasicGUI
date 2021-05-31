@@ -7,10 +7,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.*;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static java.nio.file.StandardWatchEventKinds.*;
 
 public class MyJPopupMenu extends JPopupMenu {
     private final JTree tree;
@@ -69,14 +69,67 @@ public class MyJPopupMenu extends JPopupMenu {
             else{
                 dir += "\\" + sourceFile.getName();
             }
-            //implement whole directory copying and pasting
-            try {
-                Files.copy(Paths.get(sourceDir), Paths.get(dir), REPLACE_EXISTING);
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
+            String identifier;
+            String identifierSource[];
+            if (sourceFile.isDirectory()){
+                dir = duplicateDirectoryLoop(dir, 1);
+                try {
+                    addAllFiles(sourceFile, dir);
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
             }
-            //implement refreshing of JTree, likely need to make new interface implemented by both DirPanel and FilePanel with method buildTree, and then call Treemodel.reload().
+            else {
+                dir = duplicateFileLoop(dir, 1);
+                try {
+                    Files.copy(Paths.get(sourceDir), Paths.get(dir), StandardCopyOption.COPY_ATTRIBUTES);
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+            }
+            if (parentPanel instanceof DirPanel){
+                ((DirPanel)parentPanel).updateTree();
+                ((DirPanel)parentPanel).getParentFrame().file.updateTree();
+            }
+            if (parentPanel instanceof FilePanel){
+                ((FilePanel)parentPanel).getParentFrame().dir.updateSelection(dir.split("\\\\"));
+                ((FilePanel)parentPanel).updateTree();
+                ((FilePanel)parentPanel).getParentFrame().dir.updateTree();
+            }
         }
     }
 
+    private void addAllFiles(File file, String dir) throws IOException {
+        Files.copy(file.toPath(), Paths.get(dir), REPLACE_EXISTING);
+        File[] files = file.listFiles();
+        if (files == null) { return;}
+        String loopdir;
+        for (File insideFile : files) {
+            loopdir = dir + "\\" + insideFile.getName();
+            addAllFiles(insideFile, loopdir);
+        }
+    }
+
+    private String duplicateDirectoryLoop(String dir, int i){
+        String thisDir = dir;
+        if (Files.exists(Paths.get(dir))){
+            thisDir += "(" + i + ")";
+        }
+        if (Files.exists(Paths.get(thisDir))){
+            thisDir = duplicateDirectoryLoop(dir, i + 1);
+        }
+        return thisDir;
+    }
+
+    private String duplicateFileLoop(String dir, int i){
+        String[] splitDir = dir.split("\\.");
+        String thisDir = splitDir[0];
+        if (Files.exists(Paths.get(dir))){
+            thisDir += "(" + i + ")" + "." + splitDir[1];
+        }
+        if (Files.exists(Paths.get(thisDir))){
+            thisDir = duplicateDirectoryLoop(dir, i + 1);
+        }
+        return thisDir;
+    }
 }

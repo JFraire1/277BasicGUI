@@ -12,6 +12,7 @@ import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Enumeration;
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
@@ -19,6 +20,7 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeWillExpandListener;
 import javax.swing.plaf.basic.BasicTreeUI;
+import javax.swing.text.Position;
 import javax.swing.tree.*;
 
 /**
@@ -26,7 +28,7 @@ import javax.swing.tree.*;
  * @author Jose Fraire Jr
  */
 public class DirPanel extends JPanel {
-    private DefaultMutableTreeNode root;
+    private final DefaultMutableTreeNode root;
     private JScrollPane scPane;
     private JTree dirTree;
     String drive;
@@ -64,6 +66,28 @@ public class DirPanel extends JPanel {
 
     }
 
+    DefaultMutableTreeNode findNode(String[] names, DefaultMutableTreeNode node){
+        buildTree(node, getR(node));
+        DefaultMutableTreeNode insideNode = node;
+        if (names.length == 1){
+            return node;
+        }
+        for (Enumeration<TreeNode> j = node.children(); j.hasMoreElements();){
+            insideNode = (DefaultMutableTreeNode) j.nextElement();
+            if (insideNode.toString().equals(names[1])) {
+                break;
+            }
+        }
+        if (!insideNode.isLeaf()) {
+            insideNode = findNode(Arrays.copyOfRange(names, 1, names.length), insideNode);
+        }
+        return insideNode;
+    }
+
+    void updateSelection(String[] names){
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode)findNode(names, root).getParent();
+        dirTree.setSelectionPath(new TreePath(node.getPath()));
+    }
 
     void buildTree(DefaultMutableTreeNode p, String r) {
 
@@ -94,8 +118,38 @@ public class DirPanel extends JPanel {
         treemodel.reload(root);
     }
 
+    void updateTree(){
+        if (dirTree.getSelectionPath() == null) {
+            buildTree(root, drive);
+            treemodel.reload();
+            return;
+        }
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) dirTree.getSelectionPath().getLastPathComponent();
+        dirTree.collapsePath(dirTree.getSelectionPath());
+        buildTree(node, getR(node));
+        dirTree.expandPath(dirTree.getSelectionPath());
+    }
 
-    public void updateStatus(File file, String r) {
+    private String getR(DefaultMutableTreeNode node) {
+        TreeNode[] path = node.getPath();
+        String r = "";
+        for (TreeNode insideNode : path) {
+            String s = insideNode.toString();
+            if (s.equals(drive))
+                r = s;
+            else if (r.equals(drive))
+                r += s;
+            else
+                r += "\\" + s;
+        }
+        return r;
+    }
+
+    FileFrame getParentFrame(){
+        return parent;
+    }
+
+    void updateStatus(File file, String r) {
         SimpleDateFormat dateformatter = new SimpleDateFormat("MM/dd/yyyy");
         String status = "Size: ";
         status += (file.getTotalSpace() / 1000000000);
@@ -113,17 +167,7 @@ public class DirPanel extends JPanel {
                 return;
             }
             DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) treePath.getLastPathComponent();
-            TreeNode[] path = selectedNode.getPath();
-            String r = "";
-            for (TreeNode insideNode : path) {
-                String s = insideNode.toString();
-                if (s.equals(drive))
-                    r = s;
-                else if (r.equals(drive))
-                    r += s;
-                else
-                    r += "\\" + s;
-            }
+            String r = getR(selectedNode);
             if (e.getButton() == 1){
                 File h = new File(r);
                 updateStatus(h, r);
