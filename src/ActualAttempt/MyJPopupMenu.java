@@ -75,11 +75,11 @@ public class MyJPopupMenu extends JPopupMenu {
     private class PasteActionListener implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (dir.startsWith(sourceDir) && dir != sourceDir){
+            if(!hasSourceDir){
                 //add info popup
                 return;
             }
-            if(!hasSourceDir){
+            if (dir.startsWith(sourceDir) && dir != sourceDir){
                 //add info popup
                 return;
             }
@@ -186,11 +186,12 @@ public class MyJPopupMenu extends JPopupMenu {
     private String duplicateFileLoop(String dir, int i){
         String[] splitDir = dir.split("\\.");
         String thisDir = splitDir[0];
-        if (Files.exists(Paths.get(dir))){
-            thisDir += "(" + i + ")" + "." + splitDir[1];
+        if (!Files.exists(Paths.get(dir))){
+            return dir;
         }
+        thisDir += "(" + i + ")" + "." + splitDir[1];
         if (Files.exists(Paths.get(thisDir))){
-            thisDir = duplicateDirectoryLoop(dir, i + 1);
+            thisDir = duplicateFileLoop(dir, i + 1);
         }
         return thisDir;
     }
