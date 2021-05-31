@@ -2,6 +2,7 @@ package ActualAttempt;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -51,6 +52,7 @@ public class MyJPopupMenu extends JPopupMenu {
     private class PasteActionListener implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent e) {
+            parentPanel.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             if(!hasSourceDir){return;}
             File file = new File(dir);
             File sourceFile = new File(sourceDir);
@@ -86,30 +88,47 @@ public class MyJPopupMenu extends JPopupMenu {
                 }
             }
             update();
+            parentPanel.setCursor(Cursor.getDefaultCursor());
         }
     }
 
-    private void update(){
-        if (parentPanel instanceof DirPanel){
-            ((DirPanel)parentPanel).updateTree();
-            ((DirPanel)parentPanel).getParentFrame().file.updateTree();
-        }
-        if (parentPanel instanceof FilePanel){
-            ((FilePanel)parentPanel).getParentFrame().dir.updateSelection(dir.split("\\\\"));
-            ((FilePanel)parentPanel).updateTree();
-            ((FilePanel)parentPanel).getParentFrame().dir.updateTree();
+    private class RenameActionListener implements ActionListener{
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            //
         }
     }
 
     private class DeleteActionListener implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent e) {
+            parentPanel.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            File file = new File(dir);
+            File parentfile = file.getParentFile();
             try {
-                deleteAllFiles(new File(dir), dir);
+                deleteAllFiles(file, dir);
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
-            update();
+            if (parentPanel instanceof DirPanel){
+                ((DirPanel)parentPanel).updateSelection(dir.split("\\\\"));
+                ((DirPanel)parentPanel).updateTree();
+                ((DirPanel)parentPanel).getParentFrame().file.buildTree(parentfile.getAbsolutePath());
+                ((DirPanel)parentPanel).getParentFrame().DirMenu.updateDirectoryMenu(parentfile.getAbsolutePath());
+            }
+
+            if (parentPanel instanceof FilePanel){
+                ((FilePanel)parentPanel).getParentFrame().dir.updateSelection(dir.split("\\\\"));
+                ((FilePanel)parentPanel).getParentFrame().dir.updateTree();
+                if (!((FilePanel)parentPanel).directory.exists()){
+                    ((FilePanel)parentPanel).buildTree(parentfile.getAbsolutePath());
+                    ((FilePanel)parentPanel).getParentFrame().DirMenu.updateDirectoryMenu(parentfile.getAbsolutePath());
+                }
+                else {
+                    ((FilePanel)parentPanel).updateTree();
+                }
+            }
+            parentPanel.setCursor(Cursor.getDefaultCursor());
         }
     }
 
@@ -159,5 +178,18 @@ public class MyJPopupMenu extends JPopupMenu {
             thisDir = duplicateDirectoryLoop(dir, i + 1);
         }
         return thisDir;
+    }
+
+    private void update(){
+        if (parentPanel instanceof DirPanel){
+            ((DirPanel)parentPanel).updateTree();
+            ((DirPanel)parentPanel).getParentFrame().file.updateTree();
+        }
+
+        if (parentPanel instanceof FilePanel){
+            ((FilePanel)parentPanel).getParentFrame().dir.updateSelection(dir.split("\\\\"));
+            ((FilePanel)parentPanel).updateTree();
+            ((FilePanel)parentPanel).getParentFrame().dir.updateTree();
+        }
     }
 }

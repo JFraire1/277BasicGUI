@@ -6,20 +6,16 @@
 package ActualAttempt;
 
 
-import java.awt.BorderLayout;
-import java.awt.Desktop;
-import java.awt.Dimension;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.File;
-import java.io.IOException;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTree;
+import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeWillExpandListener;
 import javax.swing.plaf.basic.BasicTreeUI;
 import javax.swing.tree.*;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
 
 
 /**
@@ -30,7 +26,7 @@ public class FilePanel extends JPanel{
     private JScrollPane scPane = new JScrollPane();
     private JTree dirTree = new JTree();
     private FileFrame parent;
-    private File directory;
+    protected File directory;
     private final FilePanel fp = this;
     private DefaultMutableTreeNode root;
     
