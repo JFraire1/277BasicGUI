@@ -29,7 +29,10 @@ public class FilePanel extends JPanel{
     protected File directory;
     private final FilePanel fp = this;
     private DefaultMutableTreeNode root;
-    
+    final Font currentFont = dirTree.getFont();
+    final Font bigFont = new Font(currentFont.getName(), currentFont.getStyle(), currentFont.getSize() + 1);
+
+
     public FilePanel(FileFrame f){
         parent = f;
         scPane.setPreferredSize(new Dimension(200,200));
@@ -44,6 +47,8 @@ public class FilePanel extends JPanel{
                       });
         dirTree.addTreeWillExpandListener(new MyTreeWillExpandListener());
         dirTree.addMouseListener(new TreeMouseAdapter());
+        dirTree.setRowHeight(25);
+        dirTree.setFont(bigFont);
         scPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scPane.setViewportView(dirTree);
         add(scPane);
@@ -92,10 +97,12 @@ public class FilePanel extends JPanel{
             DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) treePath.getLastPathComponent();
             TreeNode[] path = selectedNode.getPath();
             String r = "";
+            boolean copiedDirectory = false;
             for (TreeNode insideNode : path) {
                 String s = insideNode.toString();
-                if (s.equals(directory.getName())){
+                if (s.equals(directory.getName()) && !copiedDirectory){
                     r = directory.getAbsolutePath();
+                    copiedDirectory = true;
                 }
                 else {
                     if (r.endsWith("\\")) {

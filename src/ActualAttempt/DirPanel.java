@@ -41,6 +41,7 @@ public class DirPanel extends JPanel {
         scPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         dirTree.addMouseListener(new TreeMouseAdapter());
         dirTree.addTreeWillExpandListener(new MyTreeWillExpandListener());
+        dirTree.setRowHeight(15);
         dirTree.setUI(new BasicTreeUI() {
             @Override
             protected boolean shouldPaintExpandControl(final TreePath path, final int row

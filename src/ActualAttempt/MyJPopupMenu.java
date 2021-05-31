@@ -20,43 +20,74 @@ public class MyJPopupMenu extends JPopupMenu {
     private static String sourceDir;
     private static boolean hasSourceDir = false;
     private String dir;
+    private static boolean cutSwitch = false;
 
     public MyJPopupMenu(DefaultMutableTreeNode selectedNode, String dir, JPanel parentPanel, JTree tree){
+        String cutText;
+        cutText = "Cut";
+        if (cutSwitch){
+            cutText = "Cancel";
+        }
         this.selectedNode = selectedNode;
         this.dir = dir;
         this.tree = tree;
         this.parentPanel = parentPanel;
         JMenuItem copy = new JMenuItem("Copy");
+        JMenuItem cut = new JMenuItem(cutText);
         JMenuItem delete = new JMenuItem("Delete");
         JMenuItem paste = new JMenuItem("Paste");
         JMenuItem rename = new JMenuItem("Rename");
+        cut.addActionListener (new CutActionListener());
         copy.addActionListener(new CopyActionListener());
         delete.addActionListener(new DeleteActionListener());
         paste.addActionListener(new PasteActionListener());
-        //rename.addActionListener(new MyMenuActionListener());
+        rename.addActionListener(new RenameActionListener());
         add(copy);
+        add(cut);
         add(paste);
         add(rename);
         add(delete);
     }
 
+    private class CutActionListener implements ActionListener{
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (cutSwitch){
+                hasSourceDir = false;
+                cutSwitch = false;
+                return;
+            }
+            sourceDir = dir;
+            hasSourceDir = true;
+            cutSwitch = true;
+        }
+    }
 
     private class CopyActionListener implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent e) {
             sourceDir = dir;
             hasSourceDir = true;
+            cutSwitch = false;
         }
     }
 
     private class PasteActionListener implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent e) {
+            if (dir.startsWith(sourceDir) && dir != sourceDir){
+                //add info popup
+                return;
+            }
+            if(!hasSourceDir){
+                //add info popup
+                return;
+            }
             parentPanel.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            if(!hasSourceDir){return;}
             File file = new File(dir);
             File sourceFile = new File(sourceDir);
             if (!sourceFile.exists()){
+                //add info popup
                 hasSourceDir = false;
                 return;
             }
@@ -88,6 +119,13 @@ public class MyJPopupMenu extends JPopupMenu {
                 }
             }
             update();
+            if (cutSwitch){
+                dir = sourceDir;
+                delete();
+                hasSourceDir = false;
+                cutSwitch = false;
+            }
+            update();
             parentPanel.setCursor(Cursor.getDefaultCursor());
         }
     }
@@ -95,40 +133,17 @@ public class MyJPopupMenu extends JPopupMenu {
     private class RenameActionListener implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent e) {
-            //
+            cutSwitch = false;
+            //todo
+            //add dialog, return new name, check for special characters, dialog popup if unusable name
         }
     }
 
     private class DeleteActionListener implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent e) {
-            parentPanel.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            File file = new File(dir);
-            File parentfile = file.getParentFile();
-            try {
-                deleteAllFiles(file, dir);
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            }
-            if (parentPanel instanceof DirPanel){
-                ((DirPanel)parentPanel).updateSelection(dir.split("\\\\"));
-                ((DirPanel)parentPanel).updateTree();
-                ((DirPanel)parentPanel).getParentFrame().file.buildTree(parentfile.getAbsolutePath());
-                ((DirPanel)parentPanel).getParentFrame().DirMenu.updateDirectoryMenu(parentfile.getAbsolutePath());
-            }
-
-            if (parentPanel instanceof FilePanel){
-                ((FilePanel)parentPanel).getParentFrame().dir.updateSelection(dir.split("\\\\"));
-                ((FilePanel)parentPanel).getParentFrame().dir.updateTree();
-                if (!((FilePanel)parentPanel).directory.exists()){
-                    ((FilePanel)parentPanel).buildTree(parentfile.getAbsolutePath());
-                    ((FilePanel)parentPanel).getParentFrame().DirMenu.updateDirectoryMenu(parentfile.getAbsolutePath());
-                }
-                else {
-                    ((FilePanel)parentPanel).updateTree();
-                }
-            }
-            parentPanel.setCursor(Cursor.getDefaultCursor());
+            cutSwitch = false;
+            delete();
         }
     }
 
@@ -191,5 +206,35 @@ public class MyJPopupMenu extends JPopupMenu {
             ((FilePanel)parentPanel).updateTree();
             ((FilePanel)parentPanel).getParentFrame().dir.updateTree();
         }
+    }
+
+    private void delete(){
+        parentPanel.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        File file = new File(dir);
+        File parentfile = file.getParentFile();
+        try {
+            deleteAllFiles(file, dir);
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+        if (parentPanel instanceof DirPanel){
+            ((DirPanel)parentPanel).updateSelection(dir.split("\\\\"));
+            ((DirPanel)parentPanel).updateTree();
+            ((DirPanel)parentPanel).getParentFrame().file.buildTree(parentfile.getAbsolutePath());
+            ((DirPanel)parentPanel).getParentFrame().DirMenu.updateDirectoryMenu(parentfile.getAbsolutePath());
+        }
+
+        if (parentPanel instanceof FilePanel){
+            ((FilePanel)parentPanel).getParentFrame().dir.updateSelection(dir.split("\\\\"));
+            ((FilePanel)parentPanel).getParentFrame().dir.updateTree();
+            if (!((FilePanel)parentPanel).directory.exists()){
+                ((FilePanel)parentPanel).buildTree(parentfile.getAbsolutePath());
+                ((FilePanel)parentPanel).getParentFrame().DirMenu.updateDirectoryMenu(parentfile.getAbsolutePath());
+            }
+            else {
+                ((FilePanel)parentPanel).updateTree();
+            }
+        }
+        parentPanel.setCursor(Cursor.getDefaultCursor());
     }
 }
