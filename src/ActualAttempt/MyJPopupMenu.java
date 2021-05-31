@@ -6,8 +6,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.nio.channels.spi.AbstractInterruptibleChannel;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class MyJPopupMenu extends JPopupMenu {
@@ -83,22 +85,31 @@ public class MyJPopupMenu extends JPopupMenu {
                     ioException.printStackTrace();
                 }
             }
-            if (parentPanel instanceof DirPanel){
-                ((DirPanel)parentPanel).updateTree();
-                ((DirPanel)parentPanel).getParentFrame().file.updateTree();
-            }
-            if (parentPanel instanceof FilePanel){
-                ((FilePanel)parentPanel).getParentFrame().dir.updateSelection(dir.split("\\\\"));
-                ((FilePanel)parentPanel).updateTree();
-                ((FilePanel)parentPanel).getParentFrame().dir.updateTree();
-            }
+            update();
+        }
+    }
+
+    private void update(){
+        if (parentPanel instanceof DirPanel){
+            ((DirPanel)parentPanel).updateTree();
+            ((DirPanel)parentPanel).getParentFrame().file.updateTree();
+        }
+        if (parentPanel instanceof FilePanel){
+            ((FilePanel)parentPanel).getParentFrame().dir.updateSelection(dir.split("\\\\"));
+            ((FilePanel)parentPanel).updateTree();
+            ((FilePanel)parentPanel).getParentFrame().dir.updateTree();
         }
     }
 
     private class DeleteActionListener implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent e) {
-            
+            try {
+                deleteAllFiles(new File(dir), dir);
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+            update();
         }
     }
 
@@ -111,6 +122,20 @@ public class MyJPopupMenu extends JPopupMenu {
             loopdir = dir + "\\" + insideFile.getName();
             addAllFiles(insideFile, loopdir);
         }
+    }
+
+    private void deleteAllFiles(File file, String dir) throws IOException {
+        File[] files = file.listFiles();
+        if (files == null){
+            Files.deleteIfExists(Paths.get(dir));
+            return;
+        }
+        String loopdir = dir;
+        for (File insideFile : files) {
+            loopdir = dir + "\\" + insideFile.getName();
+            deleteAllFiles(insideFile, loopdir);
+        }
+        Files.deleteIfExists(Paths.get(dir));
     }
 
     private String duplicateDirectoryLoop(String dir, int i){
