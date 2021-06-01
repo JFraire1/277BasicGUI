@@ -21,6 +21,7 @@ class MyJPopupMenu extends JPopupMenu {
     private static boolean hasSourceDir = false;
     private static String dir;
     private static boolean cutSwitch = false;
+    private File file;
 
     public MyJPopupMenu(DefaultMutableTreeNode selectedNode, String dir, JPanel parentPanel, JTree tree){
         String cutText;
@@ -28,6 +29,7 @@ class MyJPopupMenu extends JPopupMenu {
         if (cutSwitch){
             cutText = "Cancel";
         }
+        this.file = new File(dir);
         this.selectedNode = selectedNode;
         MyJPopupMenu.dir = dir;
         this.tree = tree;
@@ -86,7 +88,6 @@ class MyJPopupMenu extends JPopupMenu {
                 return;
             }
             parentPanel.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            File file = new File(dir);
             File sourceFile = new File(sourceDir);
             if (!sourceFile.exists()){
                 //add info popup
@@ -235,7 +236,6 @@ class MyJPopupMenu extends JPopupMenu {
 
     private void delete(){
         parentPanel.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        File file = new File(dir);
         File parentfile = file.getParentFile();
         try {
             deleteAllFiles(file, dir);

@@ -158,7 +158,6 @@ class FilePanel extends JPanel{
     private class RenameListener implements TreeModelListener{
         @Override
         public void treeNodesChanged(TreeModelEvent e) {
-
         }
         @Override
         public void treeNodesInserted(TreeModelEvent e) {
