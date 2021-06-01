@@ -9,7 +9,7 @@ package ActualAttempt;
  *
  * @author Jose Fraire Jr
  */
-public class tooManyWindowDlg extends javax.swing.JDialog {
+class tooManyWindowDlg extends javax.swing.JDialog {
 
     /**
      * Creates new form tooManyWindowDlg

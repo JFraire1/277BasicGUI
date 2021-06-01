@@ -8,7 +8,7 @@ package ActualAttempt;
  *
  * @author Jose Fraire Jr
  */
-public class AboutDlg extends javax.swing.JDialog {
+class AboutDlg extends javax.swing.JDialog {
 
     /**
      * Creates new form AboutDlg

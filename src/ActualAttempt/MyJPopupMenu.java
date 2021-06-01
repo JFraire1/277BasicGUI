@@ -13,13 +13,13 @@ import java.nio.file.StandardCopyOption;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
-public class MyJPopupMenu extends JPopupMenu {
+class MyJPopupMenu extends JPopupMenu {
     private final JTree tree;
     private final JPanel parentPanel;
     private final DefaultMutableTreeNode selectedNode;
     private static String sourceDir;
     private static boolean hasSourceDir = false;
-    private String dir;
+    private static String dir;
     private static boolean cutSwitch = false;
 
     public MyJPopupMenu(DefaultMutableTreeNode selectedNode, String dir, JPanel parentPanel, JTree tree){
@@ -29,7 +29,7 @@ public class MyJPopupMenu extends JPopupMenu {
             cutText = "Cancel";
         }
         this.selectedNode = selectedNode;
-        this.dir = dir;
+        MyJPopupMenu.dir = dir;
         this.tree = tree;
         this.parentPanel = parentPanel;
         JMenuItem copy = new JMenuItem("Copy");
@@ -45,7 +45,9 @@ public class MyJPopupMenu extends JPopupMenu {
         add(copy);
         add(cut);
         add(paste);
-        add(rename);
+        if (parentPanel instanceof FilePanel){
+            add(rename);
+        }
         add(delete);
     }
 
@@ -79,7 +81,7 @@ public class MyJPopupMenu extends JPopupMenu {
                 //add info popup
                 return;
             }
-            if (dir.startsWith(sourceDir) && dir != sourceDir){
+            if (dir.startsWith(sourceDir) && !dir.equals(sourceDir)){
                 //add info popup
                 return;
             }
@@ -134,8 +136,30 @@ public class MyJPopupMenu extends JPopupMenu {
         @Override
         public void actionPerformed(ActionEvent e) {
             cutSwitch = false;
-            //todo
+            tree.startEditingAtPath(tree.getSelectionPath());
+            //likely need a treemodel listener here,
+            // make it run something like whats below,
+            // then make it set tree.setEditable(false) before returning
+            /*
+            File file = new File(dir);
+            String[] strings = dir.split("\\\\");
+            String fileType = strings[strings.length-1].split("\\.")[1];
+            String newName = "";
+            for (int i=0;i<strings.length-1;i++){
+                newName += strings[i] + "\\";
+            }
+            newName += "ReName Test" + "." + fileType;
+            File newNameFile = new File(newName);
+            System.out.println(file.renameTo(newNameFile));
+            System.out.println(file.getAbsolutePath());
+            System.out.println(newNameFile.getAbsolutePath());
+            update();
+            //sets dirTree.setEditable, dirTree.startEditingAtPath, use getPathForLocation
+            //if i can find a way to detect editing of a node, I might add implementation there as well
+            //maybe treeModelListener, that sounds promising
+            //might need separate implementation for directory renaming, that does not sound fun lmao, but it might be solvable with a recursive function, maybe;
             //add dialog, return new name, check for special characters, dialog popup if unusable name
+             */
         }
     }
 

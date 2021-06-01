@@ -8,6 +8,8 @@ package ActualAttempt;
 
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeWillExpandListener;
 import javax.swing.plaf.basic.BasicTreeUI;
 import javax.swing.tree.*;
@@ -22,7 +24,7 @@ import java.io.IOException;
  *
  * @author Jose Fraire Jr
  */
-public class FilePanel extends JPanel{
+class FilePanel extends JPanel{
     private JScrollPane scPane = new JScrollPane();
     private JTree dirTree = new JTree();
     private FileFrame parent;
@@ -47,6 +49,7 @@ public class FilePanel extends JPanel{
                       });
         dirTree.addTreeWillExpandListener(new MyTreeWillExpandListener());
         dirTree.addMouseListener(new TreeMouseAdapter());
+        dirTree.setEditable(true);
         dirTree.setRowHeight(25);
         dirTree.setFont(bigFont);
         scPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -59,6 +62,7 @@ public class FilePanel extends JPanel{
         directory = file;
         root = new DefaultMutableTreeNode(file.getName());
         DefaultTreeModel treemodel = new DefaultTreeModel(root);
+        treemodel.addTreeModelListener(new RenameListener());
         dirTree.setModel(treemodel);
         File[] files = file.listFiles();
         if (files != null){
@@ -148,6 +152,25 @@ public class FilePanel extends JPanel{
 
         @Override
         public void treeWillCollapse(TreeExpansionEvent event) throws ExpandVetoException {
+        }
+    }
+
+    private class RenameListener implements TreeModelListener{
+        @Override
+        public void treeNodesChanged(TreeModelEvent e) {
+
+        }
+        @Override
+        public void treeNodesInserted(TreeModelEvent e) {
+
+        }
+        @Override
+        public void treeNodesRemoved(TreeModelEvent e) {
+
+        }
+        @Override
+        public void treeStructureChanged(TreeModelEvent e) {
+
         }
     }
 }

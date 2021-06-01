@@ -22,7 +22,7 @@ import java.util.Enumeration;
  *
  * @author Jose Fraire Jr
  */
-public class DirPanel extends JPanel {
+class DirPanel extends JPanel {
     private final DefaultMutableTreeNode root;
     private JScrollPane scPane;
     private JTree dirTree;
@@ -181,7 +181,7 @@ public class DirPanel extends JPanel {
                 buildTree(selectedNode, r);
             }
 
-            if (e.getButton() == 2 | e.getButton() == 3) {
+            if (e.getButton() == 2| e.getButton() == 3) {
                 MyJPopupMenu menu = new MyJPopupMenu(selectedNode, r, dp, dirTree);
                 menu.show(e.getComponent(), e.getX(), e.getY());
 

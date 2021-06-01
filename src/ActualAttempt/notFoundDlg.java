@@ -9,7 +9,7 @@ package ActualAttempt;
  *
  * @author Jose Fraire Jr
  */
-public class notFoundDlg extends javax.swing.JDialog {
+class notFoundDlg extends javax.swing.JDialog {
 
     /**
      * Creates new form notFoundDlg

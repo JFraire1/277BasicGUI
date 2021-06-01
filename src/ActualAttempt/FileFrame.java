@@ -13,7 +13,7 @@ import java.awt.*;
  *
  * @author Jose Fraire Jr
  */
-public class FileFrame extends JInternalFrame {
+class FileFrame extends JInternalFrame {
     JSplitPane splitpane;
     DirectoryMenu DirMenu = new DirectoryMenu(this);
     FilePanel file = new FilePanel(this);
@@ -60,5 +60,4 @@ public class FileFrame extends JInternalFrame {
         DirMenu.updateDirectoryMenu(r);
         file.buildTree(r);
     }
-
 }

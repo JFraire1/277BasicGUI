@@ -12,7 +12,7 @@ import java.io.File;
  *
  * @author Jose Fraire Jr
  */
-public class findDlg extends javax.swing.JDialog {
+class findDlg extends javax.swing.JDialog {
     private App app;
     /**
      * Creates new form findDlg
