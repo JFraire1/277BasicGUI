@@ -53,6 +53,7 @@ class App extends JFrame{
         dPane.add(ff);
         ff.dir.updateSelection(newDir.split("\\\\"), 0);
         ff.dir.updateTree();
+        ff.moveToFront();
         if (f.isFile()){
             Desktop desktop = Desktop.getDesktop();
             try{

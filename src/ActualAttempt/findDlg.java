@@ -48,7 +48,7 @@ class findDlg extends javax.swing.JDialog {
 
         jLabel1.setFont(new java.awt.Font("Serif", 0, 18)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("Find");
+        jLabel1.setText("Go To");
 
         textField1.setText(app.drive);
         textField1.addActionListener(new java.awt.event.ActionListener() {
@@ -60,7 +60,7 @@ class findDlg extends javax.swing.JDialog {
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel2.setText("Entering directory opens the file/folder in the ");
 
-        jButton1.setText("Find");
+        jButton1.setText("Ok");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);

@@ -80,11 +80,11 @@ class MyJPopupMenu extends JPopupMenu {
         @Override
         public void actionPerformed(ActionEvent e) {
             if(!hasSourceDir){
-                //add info popup
+                JOptionPane.showMessageDialog(null, "Nothing to Paste");
                 return;
             }
             if (dir.startsWith(sourceDir) && !dir.equals(sourceDir)){
-                //add info popup
+                JOptionPane.showMessageDialog(null, "Cannot Paste Into own Subdirectory");
                 return;
             }
             if (cutSwitch && (sourceDir.startsWith(dir) | sourceDir.equals(dir))){
@@ -93,7 +93,7 @@ class MyJPopupMenu extends JPopupMenu {
             parentPanel.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             File sourceFile = new File(sourceDir);
             if (!sourceFile.exists()){
-                //add info popup
+                JOptionPane.showMessageDialog(null, "File to Copy No Longer Exists");
                 hasSourceDir = false;
                 return;
             }
@@ -113,7 +113,8 @@ class MyJPopupMenu extends JPopupMenu {
                 try {
                     addAllFiles(sourceFile, dir);
                 } catch (IOException ioException) {
-                    ioException.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Access Denied");
+                    return;
                 }
             }
             else {
@@ -121,7 +122,8 @@ class MyJPopupMenu extends JPopupMenu {
                 try {
                     Files.copy(Paths.get(sourceDir), Paths.get(dir), StandardCopyOption.COPY_ATTRIBUTES);
                 } catch (IOException ioException) {
-                    ioException.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Access Denied");
+                    return;
                 }
             }
             update();
@@ -169,7 +171,7 @@ class MyJPopupMenu extends JPopupMenu {
             Files.deleteIfExists(Paths.get(dir));
             return;
         }
-        String loopdir = dir;
+        String loopdir;
         for (File insideFile : files) {
             loopdir = dir + "\\" + insideFile.getName();
             deleteAllFiles(insideFile, loopdir);
@@ -220,7 +222,7 @@ class MyJPopupMenu extends JPopupMenu {
         try {
             deleteAllFiles(file, dir);
         } catch (IOException ioException) {
-            ioException.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Access Denied");
         }
         if (parentPanel instanceof DirPanel){
             ((DirPanel)parentPanel).updateSelection(dir.split("\\\\"));
@@ -243,24 +245,35 @@ class MyJPopupMenu extends JPopupMenu {
         parentPanel.setCursor(Cursor.getDefaultCursor());
     }
 
-    private static boolean checkContains(String check){
-        for(int i = 0; i< "/\\?%*:|\"<>.".length(); i++){
-            if(check.contains(Character.toString("/\\?%*:|\"<>.".charAt(i)))){
-                return true;
+    private static String checkContains(String check){
+        String list = "/\\?%*:|\"<>.";
+        for(int i = 0; i< list.length(); i++){
+            if(check.contains(Character.toString(list.charAt(i)))){
+                return Character.toString(list.charAt(i));
             }
         }
-        return false;
+        return null;
     }
 
     static void rename(String newName, String oldDir, String fileType){
         File oldNameFile = new File(oldDir);
-        if (!oldNameFile.exists() | checkContains(newName) | newName.equals(oldNameFile.getName())){
+        if (newName.equals(oldNameFile.getName())){
+            return;
+        }
+        if(!oldNameFile.exists()){
+            JOptionPane.showMessageDialog(null, "File to Rename No Longer Exists");
+            return;
+        }
+        if(checkContains(newName) != null){
+            String character = checkContains(newName);
+            JOptionPane.showMessageDialog(null, "New Name Cannot Contain Character: \"" + character + "\"");
+            return;
+        }
+        if (newName.charAt(0) == ' ' | newName.charAt(newName.length() - 1) == ' '){
+            JOptionPane.showMessageDialog(null, "New Name Cannot Begin With Or End With \" \"");
             return;
         }
         String oldName = oldNameFile.getName();
-        if (oldName.charAt(0) == ' ' | oldName.charAt(oldName.length() - 1) == ' '){
-            return;
-        }
         if (oldNameFile.isDirectory()){
             String[] strings = oldDir.split("\\\\");
             String newNameTemp = "";
@@ -272,30 +285,36 @@ class MyJPopupMenu extends JPopupMenu {
             try {
                 addAllFiles(oldNameFile, newName);
             } catch (IOException e) {
-                e.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Access Denied");
+                return;
             }
             try {
                 deleteAllFiles(oldNameFile, oldNameFile.getAbsolutePath());
             } catch (IOException e) {
-                e.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Access Denied");
+                return;
             }
         }
         else{
             String[] strings = oldDir.split("\\\\");
+            String newFileType = fileType;
             if (fileType.equals("123")) {
-                fileType = strings[strings.length - 1].split("\\.")[1];
+                newFileType = strings[strings.length - 1].split("\\.")[1];
+            }
+            newName += "." + newFileType;
+            if (newName.equals(oldName)){
+                return;
             }
             String newNameTemp = "";
             for (int i=0;i<strings.length-1;i++){
                 newNameTemp += strings[i] + "\\";
             }
-            newName = newNameTemp + newName + "." + fileType;
-            if (newName == oldName){
-                return;
-            }
+            newName = newNameTemp + newName;
             newName = duplicateFileLoop(newName, 1);
             File newNameFile = new File(newName);
-            oldNameFile.renameTo(newNameFile);
+            if (!oldNameFile.renameTo(newNameFile)) {
+                JOptionPane.showMessageDialog(null, "Access Denied");
+            }
         }
     }
 }

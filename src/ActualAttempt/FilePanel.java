@@ -171,6 +171,7 @@ class FilePanel extends JPanel{
             else if (newNameSplit.length > 2){
                 updateTree();
                 setCursor(Cursor.getDefaultCursor());
+                JOptionPane.showMessageDialog(fp, "Invalid Name");
                 return;
             }
             MyJPopupMenu.rename(newName, selectedDir, fileType);
