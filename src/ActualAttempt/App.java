@@ -28,6 +28,7 @@ class App extends JFrame{
     void newFF(){
         FileFrame FF = new FileFrame(this);
         dPane.add(FF);
+        FF.moveToFront();
     }
     
     

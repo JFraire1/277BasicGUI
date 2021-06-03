@@ -105,18 +105,22 @@ class DirPanel extends JPanel {
         if (files != null) {
             for (File f : files) {
                 if (!f.isHidden() && f.isDirectory()) {
-                    DefaultMutableTreeNode subnode = new DefaultMutableTreeNode(f.getName());
-                    root.add(subnode);
-                    File[] files2 = f.listFiles();
-                    if (files2 != null) {
-                        for (File g : files2) {
-                            subnode.add(new DefaultMutableTreeNode(g.getName()));
-                        }
-                    }
+                    addChildren(root, f);
                 }
             }
         }
         treemodel.reload(root);
+    }
+
+    static void addChildren(DefaultMutableTreeNode root, File f) {
+        DefaultMutableTreeNode subnode = new DefaultMutableTreeNode(f.getName());
+        root.add(subnode);
+        File[] files2 = f.listFiles();
+        if (files2 != null) {
+            for (File g : files2) {
+                subnode.add(new DefaultMutableTreeNode(g.getName()));
+            }
+        }
     }
 
     void updateTree(){
@@ -135,6 +139,9 @@ class DirPanel extends JPanel {
         dirTree.collapsePath(path);
         buildTree(node, getR(node));
         dirTree.expandPath(path);
+        String r = getR((DefaultMutableTreeNode)path.getLastPathComponent());
+        File file = new File(r);
+        updateStatus(file, r);
     }
 
     private String getR(DefaultMutableTreeNode node) {

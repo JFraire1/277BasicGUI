@@ -87,6 +87,9 @@ class MyJPopupMenu extends JPopupMenu {
                 //add info popup
                 return;
             }
+            if (cutSwitch && (sourceDir.startsWith(dir) | sourceDir.equals(dir))){
+                return;
+            }
             parentPanel.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             File sourceFile = new File(sourceDir);
             if (!sourceFile.exists()){
@@ -138,29 +141,6 @@ class MyJPopupMenu extends JPopupMenu {
         public void actionPerformed(ActionEvent e) {
             cutSwitch = false;
             tree.startEditingAtPath(tree.getSelectionPath());
-            //likely need a treemodel listener here,
-            // make it run something like whats below,
-            // then make it set tree.setEditable(false) before returning
-            /*
-            File file = new File(dir);
-            String[] strings = dir.split("\\\\");
-            String fileType = strings[strings.length-1].split("\\.")[1];
-            String newName = "";
-            for (int i=0;i<strings.length-1;i++){
-                newName += strings[i] + "\\";
-            }
-            newName += "ReName Test" + "." + fileType;
-            File newNameFile = new File(newName);
-            System.out.println(file.renameTo(newNameFile));
-            System.out.println(file.getAbsolutePath());
-            System.out.println(newNameFile.getAbsolutePath());
-            update();
-            //sets dirTree.setEditable, dirTree.startEditingAtPath, use getPathForLocation
-            //if i can find a way to detect editing of a node, I might add implementation there as well
-            //maybe treeModelListener, that sounds promising
-            //might need separate implementation for directory renaming, that does not sound fun lmao, but it might be solvable with a recursive function, maybe;
-            //add dialog, return new name, check for special characters, dialog popup if unusable name
-             */
         }
     }
 
@@ -172,7 +152,7 @@ class MyJPopupMenu extends JPopupMenu {
         }
     }
 
-    private void addAllFiles(File file, String dir) throws IOException {
+    private static void addAllFiles(File file, String dir) throws IOException {
         Files.copy(file.toPath(), Paths.get(dir), REPLACE_EXISTING);
         File[] files = file.listFiles();
         if (files == null) { return;}
@@ -183,7 +163,7 @@ class MyJPopupMenu extends JPopupMenu {
         }
     }
 
-    private void deleteAllFiles(File file, String dir) throws IOException {
+    private static void deleteAllFiles(File file, String dir) throws IOException {
         File[] files = file.listFiles();
         if (files == null){
             Files.deleteIfExists(Paths.get(dir));
@@ -197,7 +177,7 @@ class MyJPopupMenu extends JPopupMenu {
         Files.deleteIfExists(Paths.get(dir));
     }
 
-    private String duplicateDirectoryLoop(String dir, int i){
+    private static String duplicateDirectoryLoop(String dir, int i){
         String thisDir = dir;
         if (Files.exists(Paths.get(dir))){
             thisDir += "(" + i + ")";
@@ -208,7 +188,7 @@ class MyJPopupMenu extends JPopupMenu {
         return thisDir;
     }
 
-    private String duplicateFileLoop(String dir, int i){
+    private static String duplicateFileLoop(String dir, int i){
         String[] splitDir = dir.split("\\.");
         String thisDir = splitDir[0];
         if (!Files.exists(Paths.get(dir))){
@@ -261,5 +241,61 @@ class MyJPopupMenu extends JPopupMenu {
             }
         }
         parentPanel.setCursor(Cursor.getDefaultCursor());
+    }
+
+    private static boolean checkContains(String check){
+        for(int i = 0; i< "/\\?%*:|\"<>.".length(); i++){
+            if(check.contains(Character.toString("/\\?%*:|\"<>.".charAt(i)))){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static void rename(String newName, String oldDir, String fileType){
+        File oldNameFile = new File(oldDir);
+        if (!oldNameFile.exists() | checkContains(newName) | newName.equals(oldNameFile.getName())){
+            return;
+        }
+        String oldName = oldNameFile.getName();
+        if (oldName.charAt(0) == ' ' | oldName.charAt(oldName.length() - 1) == ' '){
+            return;
+        }
+        if (oldNameFile.isDirectory()){
+            String[] strings = oldDir.split("\\\\");
+            String newNameTemp = "";
+            for (int i=0;i<strings.length-1;i++){
+                newNameTemp += strings[i] + "\\";
+            }
+            newName = newNameTemp + newName;
+            newName = duplicateDirectoryLoop(newName, 1);
+            try {
+                addAllFiles(oldNameFile, newName);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                deleteAllFiles(oldNameFile, oldNameFile.getAbsolutePath());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else{
+            String[] strings = oldDir.split("\\\\");
+            if (fileType.equals("123")) {
+                fileType = strings[strings.length - 1].split("\\.")[1];
+            }
+            String newNameTemp = "";
+            for (int i=0;i<strings.length-1;i++){
+                newNameTemp += strings[i] + "\\";
+            }
+            newName = newNameTemp + newName + "." + fileType;
+            if (newName == oldName){
+                return;
+            }
+            newName = duplicateFileLoop(newName, 1);
+            File newNameFile = new File(newName);
+            oldNameFile.renameTo(newNameFile);
+        }
     }
 }

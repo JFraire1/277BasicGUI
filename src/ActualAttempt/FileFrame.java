@@ -24,10 +24,6 @@ class FileFrame extends JInternalFrame {
         parent = app;
         JInternalFrame[] jf = parent.dPane.getAllFrames();
         setLocation(jf.length * 25, jf.length * 25);
-        for (JInternalFrame frame : jf){
-            frame.moveToBack();
-        }
-        setLayer(jf.length);
         getContentPane().setLayout(new BorderLayout());
         splitpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, dir, file);
         getContentPane().add(DirMenu, BorderLayout.NORTH);

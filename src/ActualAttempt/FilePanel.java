@@ -18,6 +18,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 
 /**
@@ -29,6 +30,7 @@ class FilePanel extends JPanel{
     private JTree dirTree = new JTree();
     private FileFrame parent;
     protected File directory;
+    String selectedDir;
     private final FilePanel fp = this;
     private DefaultMutableTreeNode root;
     final Font currentFont = dirTree.getFont();
@@ -68,14 +70,7 @@ class FilePanel extends JPanel{
         if (files != null){
             for(File f : files){
                 if (!f.isHidden()){
-                    DefaultMutableTreeNode subnode = new DefaultMutableTreeNode(f.getName());
-                    root.add(subnode);
-                    File[] files2 = f.listFiles();
-                    if (files2 != null){
-                        for(File g: files2){
-                            subnode.add(new DefaultMutableTreeNode(g.getName()));
-                        }
-                    }
+                    DirPanel.addChildren(root, f);
                 }
             }
         }
@@ -91,6 +86,28 @@ class FilePanel extends JPanel{
         buildTree(directory.getAbsolutePath());
     }
 
+    private String getR(DefaultMutableTreeNode node){
+        TreeNode[] path = node.getPath();
+        String r = "";
+        boolean copiedDirectory = false;
+        for (TreeNode insideNode : path) {
+            String s = insideNode.toString();
+            if (s.equals(directory.getName()) && !copiedDirectory){
+                r = directory.getAbsolutePath();
+                copiedDirectory = true;
+            }
+            else {
+                if (r.endsWith("\\")) {
+                    r += s;
+                }
+                else{
+                    r += "\\" + s;
+                }
+            }
+        }
+        return r;
+    }
+
     private class TreeMouseAdapter extends MouseAdapter {
         @Override
         public void mouseClicked(MouseEvent e) {
@@ -99,25 +116,9 @@ class FilePanel extends JPanel{
                 return;
             }
             DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) treePath.getLastPathComponent();
-            TreeNode[] path = selectedNode.getPath();
-            String r = "";
-            boolean copiedDirectory = false;
-            for (TreeNode insideNode : path) {
-                String s = insideNode.toString();
-                if (s.equals(directory.getName()) && !copiedDirectory){
-                    r = directory.getAbsolutePath();
-                    copiedDirectory = true;
-                }
-                else {
-                    if (r.endsWith("\\")) {
-                        r += s;
-                    }
-                    else{
-                        r += "\\" + s;
-                    }
-                }
-            }
+            String r = getR(selectedNode);
             if (e.getButton() == 1) {
+                selectedDir = r;
                 if (e.getClickCount() == 2) {
                     File f = new File(r);
                     if (f.isDirectory()) {
@@ -158,6 +159,31 @@ class FilePanel extends JPanel{
     private class RenameListener implements TreeModelListener{
         @Override
         public void treeNodesChanged(TreeModelEvent e) {
+            setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            File parentfile = directory.getParentFile();
+            String newName = Objects.requireNonNull(dirTree.getSelectionPath()).getLastPathComponent().toString();
+            String[] newNameSplit = newName.split("\\.");
+            newName = newNameSplit[0];
+            String fileType = "123";
+            if (newNameSplit.length == 2){
+                fileType = newNameSplit[1];
+            }
+            else if (newNameSplit.length > 2){
+                updateTree();
+                setCursor(Cursor.getDefaultCursor());
+                return;
+            }
+            MyJPopupMenu.rename(newName, selectedDir, fileType);
+            parent.dir.updateSelection(selectedDir.split("\\\\"));
+            parent.dir.updateTree();
+            if (!directory.exists()){
+                buildTree(parentfile.getAbsolutePath());
+                parent.DirMenu.updateDirectoryMenu(parentfile.getAbsolutePath());
+            }
+            else {
+                updateTree();
+            }
+            setCursor(Cursor.getDefaultCursor());
         }
         @Override
         public void treeNodesInserted(TreeModelEvent e) {
