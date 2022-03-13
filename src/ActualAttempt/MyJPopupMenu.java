@@ -113,7 +113,7 @@ class MyJPopupMenu extends JPopupMenu {
                 try {
                     addAllFiles(sourceFile, dir);
                 } catch (IOException ioException) {
-                    JOptionPane.showMessageDialog(null, "Access Denied");
+                    JOptionPane.showMessageDialog(null, e);
                     return;
                 }
             }
@@ -122,7 +122,7 @@ class MyJPopupMenu extends JPopupMenu {
                 try {
                     Files.copy(Paths.get(sourceDir), Paths.get(dir), StandardCopyOption.COPY_ATTRIBUTES);
                 } catch (IOException ioException) {
-                    JOptionPane.showMessageDialog(null, "Access Denied");
+                    JOptionPane.showMessageDialog(null, e);
                     return;
                 }
             }
@@ -222,7 +222,7 @@ class MyJPopupMenu extends JPopupMenu {
         try {
             deleteAllFiles(file, dir);
         } catch (IOException ioException) {
-            JOptionPane.showMessageDialog(null, "Access Denied");
+            JOptionPane.showMessageDialog(null, ioException);
         }
         if (parentPanel instanceof DirPanel){
             ((DirPanel)parentPanel).updateSelection(dir.split("\\\\"));
@@ -285,13 +285,13 @@ class MyJPopupMenu extends JPopupMenu {
             try {
                 addAllFiles(oldNameFile, newName);
             } catch (IOException e) {
-                JOptionPane.showMessageDialog(null, "Access Denied");
+                JOptionPane.showMessageDialog(null, e);
                 return;
             }
             try {
                 deleteAllFiles(oldNameFile, oldNameFile.getAbsolutePath());
             } catch (IOException e) {
-                JOptionPane.showMessageDialog(null, "Access Denied");
+                JOptionPane.showMessageDialog(null, e);
                 return;
             }
         }
@@ -313,7 +313,7 @@ class MyJPopupMenu extends JPopupMenu {
             newName = duplicateFileLoop(newName, 1);
             File newNameFile = new File(newName);
             if (!oldNameFile.renameTo(newNameFile)) {
-                JOptionPane.showMessageDialog(null, "Access Denied");
+                JOptionPane.showMessageDialog(null, "Failed");
             }
         }
     }
